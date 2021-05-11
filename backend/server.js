@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const Web3 = require("web3");
-const { MongoClient, ObjectId } = require('mongodb');
+const MongoClient = require("mongodb").MongoClient;
 const { nanoid } = require("nanoid");
 const cookieParser = require("cookie-parser");
 const ERC721ABI = require("./config/erc721.json");
@@ -52,18 +52,19 @@ async function run() {
 run();
 
 var app = express();
-app.use(express.json());
 app.use(cookieParser());
-app.use(express.urlencoded({ extended: true }));
-
 const corsConfig = {
   credentials: true,
   origin: true,
 };
 app.use(cors(corsConfig));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+app.use(express.static("admin-frontend"));
 
 app.get("/", async function (req, res) {
-  res.send("NFT Minter Admin API");
+  res.sendFile("index.html");
 });
 
 app.get("/nonce", async function (req, res) {
@@ -112,8 +113,7 @@ app.post("/authenticate", async function (req, res) {
       sameSite: true,
       httpOnly: false,
     });
-    // res.sendStatus(200);
-    res.send(token);
+    res.sendStatus(200);
   } catch (e) {
     console.log(e);
     res.sendStatus(400);
@@ -122,7 +122,7 @@ app.post("/authenticate", async function (req, res) {
 
 app.post("/logout", auth, async function (req, res) {
   try {
-    const result = await addresses.updateOne({ "address": req.headers.address },
+    const result = await addresses.updateOne({ "address": req.cookies.address },
       { $unset: { nonce: "", token: "", expires: "" } });
     res.clearCookie("address");
     res.clearCookie("token");
@@ -208,7 +208,7 @@ app.get("/all/:page(\\d+)", auth, async function (req, res) {
 app.post("/approve", auth, async function (req, res) {
   try {
     const { id } = req.body;
-    const item = await collection.findOne({ _id: ObjectId(id) });
+    const item = await collection.findOne({ _id: id });
     let status;
     if (item.type === "ERC721")
       status = await ERC721.methods
@@ -231,7 +231,7 @@ app.post("/decline", auth, async function (req, res) {
   try {
     const { id } = req.body;
     // unpin from IPFS
-    const result = await collection.deleteOne({ _id: ObjectId(id) });
+    const result = await collection.deleteOne({ _id: id });
     console.log(result);
     res.send(result);
   } catch (e) {
@@ -242,14 +242,14 @@ app.post("/decline", auth, async function (req, res) {
 
 async function auth(req, res, next) {
   const result = await addresses.findOne(
-    { address: req.headers.address, token: req.headers.token },
+    { address: req.cookies.address, token: req.cookies.token },
     { _id: 0 }
   );
   if (result === null) {
     res.sendStatus(401);
     return;
   } else if (result.expires < Date.now() || result.expires === undefined) {
-    res.status(401).send(await generate_nonce(req.headers.address));
+    res.status(401).send(await generate_nonce(req.cookies.address));
     return;
   }
   next();
