@@ -1,10 +1,11 @@
 FROM node:14
 
 # create & set working directory
-WORKDIR /app
+RUN mkdir -p /usr/src
+WORKDIR /usr/src
 
 # copy source files
-COPY . /app
+COPY . /usr/src
 
 # install dependencies
 RUN npm install
