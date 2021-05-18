@@ -8,11 +8,11 @@ import ErrorBox from "./UI/ErrorBox";
 import {
   Button,
   Container,
-  Checkbox,
   Grid,
   CircularProgress,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import CheckIcon from '@material-ui/icons/Check';
 
 import {
   domainType,
@@ -123,7 +123,7 @@ const Form = ({
       // If Metamask use backend
       if (providerMetamask) {
         if (adult) {
-          const res = await axios.post("http://localhost:8080/add", {
+          const res = await axios.post(`/api/add`, {
             minter: signerAddress,
             name: name,
             description: desc,
@@ -139,7 +139,7 @@ const Form = ({
           setTriggerModal(true);
           toast("NFT Added", { type: "success" });
         } else {
-          const res = await axios.post("http://localhost:8080/mint", {
+          const res = await axios.post(`/api/mint`, {
             minter: signerAddress,
             type: nftType,
             uri: "https://gateway.pinata.cloud/ipfs/" + ipfsHash,
@@ -206,11 +206,11 @@ const Form = ({
                   //console.log(receipt)
                   console.log(
                     "0x72B6Dc1003E154ac71c76D3795A3829CfD5e33b9/" +
-                      parseInt(receipt.events.Transfer.raw.topics[3])
+                    parseInt(receipt.events.Transfer.raw.topics[3])
                   );
                   setArkaneUrl(
                     "0x72B6Dc1003E154ac71c76D3795A3829CfD5e33b9/" +
-                      parseInt(receipt.events.Transfer.raw.topics[3])
+                    parseInt(receipt.events.Transfer.raw.topics[3])
                   );
                   setTrsHash(receipt.transactionHash);
                   setTriggerModal(true);
@@ -276,11 +276,11 @@ const Form = ({
                   //console.log(receipt)
                   console.log(
                     "0xfd1dBD4114550A867cA46049C346B6cD452ec919/" +
-                      parseInt(receipt.events.TransferSingle.returnValues[3])
+                    parseInt(receipt.events.TransferSingle.returnValues[3])
                   );
                   setArkaneUrl(
                     "0xfd1dBD4114550A867cA46049C346B6cD452ec919/" +
-                      parseInt(receipt.events.TransferSingle.returnValues[3])
+                    parseInt(receipt.events.TransferSingle.returnValues[3])
                   );
                   setTrsHash(receipt.transactionHash);
                   setTriggerModal(true);
@@ -355,8 +355,8 @@ const Form = ({
                           {file.size > 100000
                             ? `${file.size / 100000} MB`
                             : file.size > 1000
-                            ? `${file.size / 1000} KB`
-                            : `${file.size} MB`}
+                              ? `${file.size / 1000} KB`
+                              : `${file.size} MB`}
                         </span>
                       </p>
                     </div>
@@ -468,18 +468,22 @@ const Form = ({
 
                 <Grid item xs={12}>
                   <div className={classes.flex}>
-                    <Checkbox
+                    <input 
+                      type="checkbox"
                       checked={adult}
                       onChange={(e) => setAdult(e.target.checked)}
                       color="primary"
-                      inputProps={{ "aria-label": "secondary checkbox" }}
                       className={classes.checkbox}
                       id="adult-checkbox"
+                      hidden
                     />
                     <label
-                      className={classes.labelSmall}
+                      className={classes.customLabel}
                       htmlFor="adult-checkbox"
                     >
+                      <div className="indicator">
+                        <CheckIcon className="icon"/>
+                      </div>
                       Content is 18+
                     </label>
                   </div>
@@ -621,7 +625,7 @@ const useStyles = makeStyles((theme) => ({
       flexDirection: "column",
       margin: "0",
       wordBreak: 'break-all',
-      lineHeight:'normal',
+      lineHeight: 'normal',
 
       "& span": {
         "&:first-child": {
@@ -695,6 +699,20 @@ const useStyles = makeStyles((theme) => ({
     height: "22px",
     borderColor: "#C7CBD9",
     marginRight: "11px",
+
+    "&:checked + label": {
+      backgroundColor: '#3E3B51',
+      color: 'white', 
+      borderColor: '#3E3B51',
+
+      "& .indicator": {
+        borderColor: "#3E3B51",
+
+        "& .icon": {
+          color: '#1fb141',
+        }
+      }
+    }
   },
   labelSmall: {
     fontSize: "14px",
@@ -708,6 +726,39 @@ const useStyles = makeStyles((theme) => ({
     color: "#61677e",
     marginTop: "40px",
   },
+
+  customLabel: {
+    height: '42px', 
+    // borderRadius: '25px', 
+    borderRadius: '5px',
+    backgroundColor: 'white', 
+    border: '1px solid #C7CBD9',
+    display: 'flex', 
+    alignItems: 'center',
+    padding: '0 14px 0 10px',
+    fontSize: '14px', 
+    cursor: 'pointer',
+    color: '#000',
+    fontWeight: '600',
+
+    "&:hover": {
+      backgroundColor: '#F6F6FF',
+    }, 
+
+    "& .indicator":{
+      width: '26px', 
+      height: '26px', 
+      borderRadius: '13px', 
+      border: '1px solid #C7CBD9',
+      marginRight: '10px', 
+      backgroundColor: '#fff',
+      display: 'flex',
+
+      "& .icon":{
+        color: 'transparent'
+      }
+    }
+  }
 }));
 
 export default Form;
