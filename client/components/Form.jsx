@@ -41,7 +41,7 @@ const Form = ({
   const [file, setFile] = useState(null);
   const [imgSrc, setImgSrc] = useState("");
   const [imgLoading, setImgLoading] = useState(false);
-  const [imgHash, setImgHash] = useState(false);
+  const [imgHash, setImgHash] = useState("");
   const [nftType, setNftType] = useState("ERC721");
   const [ercTwoNum, setErcTwoNum] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -73,26 +73,20 @@ const Form = ({
     setImgLoading(true);
     // console.log("object")
     if (e.target.files[0]?.size < 1e7) {
-      try {
-        setFile(e.target.files[0]);
-        const cid = await pinFileToIPFS(e.target.files[0]);
-        toast("File uploaded to IPFS", { type: "success" });
-        // console.log("IPFS imgHash", cid);
-        setImgHash(cid);
-        setErrors((pS) => ({ ...pS, file: "" }));
-        // console.log(e.target.files[0]?.size < 1e7)
-        if (e.target.files.length !== 0) {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            setImgSrc(e.target.result);
-            setImgLoading(false);
-          };
-          reader.readAsDataURL(e.target.files[0]);
-        }
-      } catch (e) {
-        console.error(e);
-        setErrors((pS) => ({ ...pS, file: "Something went wrong..." }));
-        setImgLoading(false);
+      setFile(e.target.files[0]);
+      const cid = await pinFileToIPFS(e.target.files[0]);
+      toast("File uploaded to IPFS", { type: "success" });
+      // console.log("IPFS imgHash", cid);
+      setImgHash(cid);
+      setErrors((pS) => ({ ...pS, file: "" }));
+      // console.log(e.target.files[0]?.size < 1e7)
+      if (e.target.files.length !== 0) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setImgSrc(e.target.result);
+          setImgLoading(false);
+        };
+        reader.readAsDataURL(e.target.files[0]);
       }
     } else {
       setErrors((pS) => ({ ...pS, file: "File should be less than 10MB" }));
@@ -119,7 +113,7 @@ const Form = ({
           external_url: surl,
         });
         toast("JSON data uploaded to IPFS", { type: "success" });
-        // console.log(ipfsHash);
+        console.log(ipfsHash);
       } catch (err) {
         console.log("Error Uploading files on IPFS", err);
         setErr("Uploading files on IPFS failed");
@@ -138,7 +132,7 @@ const Form = ({
             type: nftType,
             count: nftType === "ERC1155" ? ercTwoNum : 1,
           });
-          // console.log(res);
+          console.log(res);
           setIsLoading(false);
           setTrsHash("ok");
           setTriggerModal(true);
@@ -211,11 +205,11 @@ const Form = ({
                   //console.log(receipt)
                   console.log(
                     "0x72B6Dc1003E154ac71c76D3795A3829CfD5e33b9/" +
-                    parseInt(receipt.events.Transfer.raw.topics[3])
+                      parseInt(receipt.events.Transfer.raw.topics[3])
                   );
                   setArkaneUrl(
                     "0x72B6Dc1003E154ac71c76D3795A3829CfD5e33b9/" +
-                    parseInt(receipt.events.Transfer.raw.topics[3])
+                      parseInt(receipt.events.Transfer.raw.topics[3])
                   );
                   setTrsHash(receipt.transactionHash);
                   setTriggerModal(true);
@@ -281,11 +275,11 @@ const Form = ({
                   //console.log(receipt)
                   console.log(
                     "0xfd1dBD4114550A867cA46049C346B6cD452ec919/" +
-                    parseInt(receipt.events.TransferSingle.returnValues[3])
+                      parseInt(receipt.events.TransferSingle.returnValues[3])
                   );
                   setArkaneUrl(
                     "0xfd1dBD4114550A867cA46049C346B6cD452ec919/" +
-                    parseInt(receipt.events.TransferSingle.returnValues[3])
+                      parseInt(receipt.events.TransferSingle.returnValues[3])
                   );
                   setTrsHash(receipt.transactionHash);
                   setTriggerModal(true);
@@ -363,8 +357,8 @@ const Form = ({
                           {file.size > 100000
                             ? `${file.size / 100000} MB`
                             : file.size > 1000
-                              ? `${file.size / 1000} KB`
-                              : `${file.size} MB`}
+                            ? `${file.size / 1000} KB`
+                            : `${file.size} MB`}
                         </span>
                       </p>
                     </div>
@@ -505,8 +499,9 @@ const Form = ({
                 <Button
                   type="submit"
                   disabled={imgHash && !isLoading ? false : true}
-                  className={`${classes.btn} ${classes.filled} ${isLoading && classes.btnWithLoader
-                    }`}
+                  className={`${classes.btn} ${classes.filled} ${
+                    isLoading && classes.btnWithLoader
+                  }`}
                   style={{ marginBottom: "30px" }}
                 >
                   {isLoading ? "minting..." : "Mint NFT"}
