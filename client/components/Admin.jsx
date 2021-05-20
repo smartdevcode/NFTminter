@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import axios from 'axios';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-const Admin = ({ item, token, signerAddress, setIsAuth }) => {
+const Admin = ({ item, token, signerAddress }) => {
   const [approved, setApproved] = useState(false);
   const [declined, setDeclined] = useState(false);
   const [error, setError] = useState('');
@@ -28,8 +28,6 @@ const Admin = ({ item, token, signerAddress, setIsAuth }) => {
     } catch (e) {
       setLoading(false);
       console.error(e);
-      setIsAuth(false);
-      localStorage.removeItem('token');
       setError('Something went wrong...');
     }
   }
@@ -52,8 +50,6 @@ const Admin = ({ item, token, signerAddress, setIsAuth }) => {
     } catch (e) {
       setLoading(false);
       console.error(e);
-      setIsAuth(false);
-      localStorage.removeItem('token');
       setError('Something went wrong...');
     }
   }

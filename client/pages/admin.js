@@ -18,27 +18,17 @@ const Index = ({ signerAddress, web3Instance }) => {
   const [token, setToken] = useState('');
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    try {
-      const tk = JSON.parse(localStorage.getItem('token'));
-      if (tk.address === signerAddress) {
-        setToken(tk.token);
-        setIsAuth(true);
-      }
-    } catch (e) {
-      setIsAuth(false);
-      localStorage.removeItem('token');
-    }
-  }, [signerAddress])
-
   const signLogin = async () => {
     try {
       setLoading(true);
       const message = await axios.get(`/api/nonce?address=${signerAddress}`);
+      // console.log("sign message", message.data);
 
       const provider = new ethers.providers.Web3Provider(web3Instance.currentProvider);
       const signer = provider.getSigner();
       const sign = await signer.signMessage(message.data);
+
+      // console.log("sign hash", sign);
 
       const res = await axios(`/api/authenticate`, {
         method: "post",
@@ -48,10 +38,6 @@ const Index = ({ signerAddress, web3Instance }) => {
         },
       });
 
-      localStorage.setItem('token', JSON.stringify({
-        address: signerAddress,
-        token: res.data
-      }));
       setToken(res.data);
       setIsAuth(true);
       setLoading(false);
@@ -77,8 +63,6 @@ const Index = ({ signerAddress, web3Instance }) => {
       setLoading(false);
     } catch (e) {
       setLoading(false);
-      setIsAuth(false);
-      localStorage.removeItem('token');
       console.error(e);
       setError('AUTH FAILED');
     }
@@ -101,7 +85,7 @@ const Index = ({ signerAddress, web3Instance }) => {
         {!isAuth ?
           <Button className={classes.btn} onClick={signLogin}>
             Admin Auth
-          </Button> : 'Authenticated!'
+          </Button> : 'Auth Done!'
         }
         <br />
         {data.length === 0 &&
@@ -115,7 +99,6 @@ const Index = ({ signerAddress, web3Instance }) => {
               key={i}
               item={item}
               token={token}
-              setIsAuth={setIsAuth}
               signerAddress={signerAddress}
             />
           ))
