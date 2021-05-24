@@ -51,13 +51,13 @@ const Navbar = ({
                 <BridgeIcon className="menuItemIcon active" />
                 Bridge
               </a> */}
-              <Link href="/" style={{ display: "flex" }}>
+              <Link href="/">
                 <a className={router.pathname == "/" ? "menuItem active" : "menuItem"}>
                   <MintIcon className="menuItemIcon" />
                   Minter
                 </a>
               </Link>
-              <Link href="/account" style={{ display: "flex" }}>
+              <Link href="/account">
                 <a className={router.pathname == "/account" ? "menuItem active" : "menuItem"}>
                   <AccountCircleIcon className="menuItemIcon" />
                   Account
@@ -162,7 +162,7 @@ const useStyles = makeStyles((theme) => ({
         color: "#fff",
         borderColor: "#8247E5",
 
-        "& svg":{
+        "& svg": {
           fill: "#EDF0F7",
         }
       },
@@ -172,7 +172,7 @@ const useStyles = makeStyles((theme) => ({
         color: "#fff",
         borderColor: "#8247E5",
 
-        "& svg":{
+        "& svg": {
           fill: "#EDF0F7",
         }
       },
