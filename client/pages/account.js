@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+
 import { CircularProgress, Container, Grid, Modal } from "@material-ui/core/";
 import { Close } from "@material-ui/icons";
 import { makeStyles } from "@material-ui/core/styles";
@@ -21,14 +21,13 @@ const Account = ({ signerAddress }) => {
     const fetchData = async () => {
       setIsLoading(true);
       setNftData([]);
-      let { data } = await axios({
-        method: 'get',
-        url: `https://api.covalenthq.com/v1/137/address/${signerAddress}/balances_v2/?nft=true`,
-        headers: {
-          'Authorization': `Basic ${process.env.covalent_key}`
-        }
-      });
-      const items = data.data.items;
+      let res = await fetch(
+        `https://api.covalenthq.com/v1/137/address/${signerAddress}/balances_v2/?nft=true`,
+        { "stale-while-revalidate": "max-age=604800" }
+      );
+      res = await res.json();
+      const items = res.data.items;
+      console.log(items);
       // filter useful info from api
       const nft = [];
       if (items.length > 0) {
@@ -81,8 +80,9 @@ const Account = ({ signerAddress }) => {
         {/* to view the image */}
         <Modal
           open={modalState}
-          className={`${classes.modalContainer} ${modalImgProps.portrait ? classes.portrait : ''
-            }`}
+          className={`${classes.modalContainer} ${
+            modalImgProps.portrait? classes.portrait:''
+          }`}
           onClose={closeModal}
         >
           <div className={`${classes.modal} modal`}>
@@ -120,11 +120,11 @@ const useStyles = makeStyles((theme) => ({
   },
   portrait: {
     "& .modal": {
-      width: 'auto',
+      width:'auto', 
       height: '90%',
 
-      "& img": {
-        width: 'auto',
+      "& img":{
+        width:'auto',
         height: '100%',
       }
     }
